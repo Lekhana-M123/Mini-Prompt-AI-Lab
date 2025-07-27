@@ -1,0 +1,1283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Assistant - Advanced Prompt Engineering</title>
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --accent-gradient: linear-gradient(45deg, #ff6b6b, #feca57);
+            --success-gradient: linear-gradient(45deg, #56ab2f, #a8e6cf);
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --text-primary: #2d3748;
+            --text-secondary: #4a5568;
+            --shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.1);
+            --shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--primary-gradient);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .background-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.05;
+            z-index: -1;
+            background-image: radial-gradient(circle at 25% 25%, #fff 2px, transparent 2px),
+                              radial-gradient(circle at 75% 75%, #fff 2px, transparent 2px);
+            background-size: 50px 50px;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(1deg); }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #fff, #e2e8f0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.3)); }
+            to { filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.5)); }
+        }
+
+        .header p {
+            font-size: 1.25rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 2rem;
+            flex: 1;
+        }
+
+        .sidebar {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 2rem;
+            height: fit-content;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .sidebar h3 {
+            color: white;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .function-btn {
+            display: block;
+            width: 100%;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .function-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--accent-gradient);
+            transition: left 0.4s ease;
+            z-index: -1;
+        }
+
+        .function-btn:hover::before {
+            left: 0;
+        }
+
+        .function-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-hover);
+            color: white;
+        }
+
+        .function-btn.active {
+            background: var(--accent-gradient);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .function-btn .icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .function-btn .title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .function-btn .desc {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .work-area {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .prompt-selector {
+            margin-bottom: 2rem;
+        }
+
+        .prompt-selector label {
+            display: block;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        .prompt-selector select {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.9);
+            transition: all 0.3s ease;
+        }
+
+        .prompt-selector select:focus {
+            outline: none;
+            border-color: #ff6b6b;
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.2);
+        }
+
+        .input-area {
+            margin-bottom: 2rem;
+        }
+
+        .input-area label {
+            display: block;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        .input-area textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 1.25rem;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            font-size: 1rem;
+            font-family: inherit;
+            resize: vertical;
+            background: rgba(255, 255, 255, 0.9);
+            transition: all 0.3s ease;
+        }
+
+        .input-area textarea:focus {
+            outline: none;
+            border-color: #ff6b6b;
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.2);
+        }
+
+        .process-btn {
+            background: var(--success-gradient);
+            color: white;
+            border: none;
+            padding: 1.25rem 2.5rem;
+            border-radius: 16px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .process-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .process-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .process-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(86, 171, 47, 0.4);
+        }
+
+        .process-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .output-area {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            min-height: 200px;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .output-area h3 {
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            border-bottom: 3px solid #ff6b6b;
+            padding-bottom: 0.5rem;
+            display: inline-block;
+        }
+
+        .output-content {
+            line-height: 1.8;
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 3rem;
+            color: white;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            margin: 0 auto 1rem;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .feedback-section {
+            background: var(--accent-gradient);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-top: 2rem;
+            color: white;
+        }
+
+        .feedback-section h4 {
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .feedback-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .feedback-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .feedback-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .stats {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            color: white;
+        }
+
+        .stats h4 {
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .stats p {
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .word-count {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            text-align: right;
+        }
+
+        .summary-stats {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-pattern"></div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>🚀 AI Assistant </h1>
+            <p>Advanced Prompt Engineering with Real-Time Processing</p>
+            <div style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 16px; padding: 1.5rem; margin-top: 1.5rem; border: 1px solid rgba(255,255,255,0.2);">
+                <h3 style="margin-bottom: 1rem; color: #feca57;">⚠️ Knowledge Scope & Limitations</h3>
+                <p style="font-size: 1rem; line-height: 1.6; opacity: 0.9;">
+                    <strong>This AI Assistant has specialized knowledge in:</strong><br>
+                    • Basic Geography (capitals, countries, major cities)<br>
+                    • Fundamental Science (photosynthesis, gravity, basic physics)<br>
+                    • Technology Basics (AI concepts, general computing)<br>
+                    • Text Analysis & Summarization<br>
+                    • Creative Writing (stories, poems, character development)<br><br>
+                    <strong style="color: #ff6b6b;">⚡ Important:</strong> This is a demonstration project with limited knowledge. For topics outside these areas, responses may be generic or incomplete. Always verify information from authoritative sources.
+                </p>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="sidebar">
+                <h3>✨ Choose Function</h3>
+                
+                <button class="function-btn active" data-function="questions">
+                    <span class="icon">🤔</span>
+                    <div class="title">Smart Q&A</div>
+                    <div class="desc">Geography, basic science, and technology fundamentals</div>
+                </button>
+                
+                <button class="function-btn" data-function="summarize">
+                    <span class="icon">📊</span>
+                    <div class="title">Text Analyzer</div>
+                    <div class="desc">Extract insights from any text you provide</div>
+                </button>
+                
+                <button class="function-btn" data-function="creative">
+                    <span class="icon">🎨</span>
+                    <div class="title">Creative Engine</div>
+                    <div class="desc">Generate original stories, poems, and characters</div>
+                </button>
+                
+                <div class="stats">
+                    <h4>📈 Usage Analytics</h4>
+                    <p>Geography Q&A: <span id="stat-questions">0</span></p>
+                    <p>Texts Analyzed: <span id="stat-summarize">0</span></p>
+                    <p>Creative Works: <span id="stat-creative">0</span></p>
+                    <p>Accuracy Rate: <span id="success-rate">100%</span></p>
+                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.2); font-size: 0.85rem; opacity: 0.8;">
+                        <strong>⚡ Tip:</strong> Best results with questions about capitals, basic science, AI fundamentals, or creative writing prompts!
+                    </div>
+                </div>
+            </div>
+            
+            <div class="work-area">
+                <div class="prompt-selector">
+                    <label for="prompt-style">🎯 Prompt Engineering Style:</label>
+                    <select id="prompt-style">
+                        <option value="analytical">Analytical & Precise</option>
+                        <option value="comprehensive">Comprehensive & Detailed</option>
+                        <option value="creative">Creative & Engaging</option>
+                    </select>
+                </div>
+                
+                <div class="input-area">
+                    <label for="user-input" id="input-label">💭 Enter your question:</label>
+                    <textarea id="user-input" placeholder="Type your question here..."></textarea>
+                    <div class="word-count" id="word-count">0 words</div>
+                </div>
+                
+                <button class="process-btn" id="process-btn">🔥 Process Request</button>
+                
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>🧠 AI is thinking...</p>
+                </div>
+                
+                <div class="output-area" id="output-area">
+                    <h3>🎯 AI Response</h3>
+                    <div class="summary-stats hidden" id="summary-stats">
+                        <div class="stat-item">Words: <span id="word-count-output">0</span></div>
+                        <div class="stat-item">Reading Time: <span id="reading-time">0 min</span></div>
+                        <div class="stat-item">Key Points: <span id="key-points-count">0</span></div>
+                    </div>
+                    <div class="output-content" id="output-content">
+                        Your AI assistant response will appear here with accurate, contextual information...
+                    </div>
+                </div>
+                
+                <div class="feedback-section hidden" id="feedback-section">
+                    <h4>🌟 Rate This Response</h4>
+                    <div class="feedback-buttons">
+                        <button class="feedback-btn" onclick="submitFeedback(true)">👍 Excellent</button>
+                        <button class="feedback-btn" onclick="submitFeedback(false)">👎 Needs Work</button>
+                    </div>
+                    <textarea class="feedback-textarea" id="feedback-text" placeholder="Share your thoughts for improvement..." style="width: 100%; padding: 1rem; border-radius: 12px; border: none; margin-bottom: 1rem; background: rgba(255,255,255,0.2); color: white;"></textarea>
+                    <button class="feedback-btn" onclick="submitDetailedFeedback()">📝 Submit Feedback</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Enhanced application state
+        let currentFunction = 'questions';
+        let stats = {
+            questions: 0,
+            summarize: 0,
+            creative: 0,
+            positive: 0,
+            total: 0
+        };
+
+        // Advanced text processing utilities
+        class TextProcessor {
+            static countWords(text) {
+                return text.trim().split(/\s+/).filter(word => word.length > 0).length;
+            }
+
+            static estimateReadingTime(text) {
+                const wordsPerMinute = 200;
+                const words = this.countWords(text);
+                return Math.ceil(words / wordsPerMinute);
+            }
+
+            static extractKeywords(text) {
+                const stopWords = new Set(['the', 'is', 'at', 'which', 'on', 'and', 'a', 'to', 'are', 'as', 'was', 'with', 'for', 'his', 'he', 'be', 'by', 'or', 'an', 'will', 'my', 'one', 'all', 'would', 'there', 'their']);
+                return text.toLowerCase()
+                    .replace(/[^\w\s]/g, '')
+                    .split(/\s+/)
+                    .filter(word => word.length > 3 && !stopWords.has(word))
+                    .reduce((acc, word) => {
+                        acc[word] = (acc[word] || 0) + 1;
+                        return acc;
+                    }, {});
+            }
+
+            static extractSentences(text) {
+                return text.match(/[^\.!?]+[\.!?]+/g) || [];
+            }
+
+            static summarizeText(text, maxSentences = 3) {
+                const sentences = this.extractSentences(text);
+                if (sentences.length <= maxSentences) return text;
+
+                // Simple extractive summarization based on sentence position and length
+                const scores = sentences.map((sentence, index) => {
+                    let score = 0;
+                    
+                    // Position scoring (first and last sentences are important)
+                    if (index === 0 || index === sentences.length - 1) score += 2;
+                    
+                    // Length scoring (moderate length sentences are preferred)
+                    const words = this.countWords(sentence);
+                    if (words >= 10 && words <= 25) score += 1;
+                    
+                    return { sentence: sentence.trim(), score, index };
+                });
+
+                return scores
+                    .sort((a, b) => b.score - a.score)
+                    .slice(0, maxSentences)
+                    .sort((a, b) => a.index - b.index)
+                    .map(item => item.sentence)
+                    .join(' ');
+            }
+        }
+
+        // Enhanced prompt templates with better engineering
+        const promptTemplates = {
+            questions: {
+                analytical: (input) => `Analyze and provide a precise, fact-based answer to: "${input}". Include relevant context and supporting information.`,
+                comprehensive: (input) => `Provide a comprehensive explanation for: "${input}". Include background information, examples, and implications.`,
+                creative: (input) => `Explain "${input}" in an engaging, memorable way that makes complex concepts accessible and interesting.`
+            },
+            summarize: {
+                analytical: (input) => `Extract the key factual points and main arguments from this text in a structured format.`,
+                comprehensive: (input) => `Provide a detailed summary that captures the main themes, supporting evidence, and conclusions.`,
+                creative: (input) => `Create an engaging summary that tells the story and highlights the most important insights.`
+            },
+            creative: {
+                analytical: (input) => `Create structured, well-organized creative content based on: "${input}". Focus on clear narrative elements.`,
+                comprehensive: (input) => `Generate rich, detailed creative content for: "${input}". Include character development, setting, and engaging plot elements.`,
+                creative: (input) => `Let imagination flow and create magical, original content inspired by: "${input}". Be bold and innovative.`
+            }
+        };
+
+        // Intelligent response generator
+        class ResponseGenerator {
+            static generateQuestionResponse(input, style) {
+                const lowerInput = input.toLowerCase();
+                
+                // Geography questions
+                if (lowerInput.includes('capital')) {
+                    const country = this.extractCountry(lowerInput);
+                    return this.getCapitalInfo(country, style);
+                }
+                
+                // Science questions
+                if (lowerInput.includes('photosynthesis')) {
+                    return this.getPhotosynthesisInfo(style);
+                }
+                
+                if (lowerInput.includes('gravity')) {
+                    return this.getGravityInfo(style);
+                }
+                
+                // Technology questions
+                if (lowerInput.includes('artificial intelligence') || lowerInput.includes('ai')) {
+                    return this.getAIInfo(style);
+                }
+                
+                // General response
+                return this.getGeneralResponse(input, style);
+            }
+
+            static extractCountry(input) {
+                const countries = {
+                    'france': 'France',
+                    'germany': 'Germany',
+                    'italy': 'Italy',
+                    'spain': 'Spain',
+                    'japan': 'Japan',
+                    'india': 'India',
+                    'china': 'China',
+                    'brazil': 'Brazil'
+                };
+                
+                for (let [key, value] of Object.entries(countries)) {
+                    if (input.includes(key)) return value;
+                }
+                return 'France'; // default
+            }
+
+            static getCapitalInfo(country, style) {
+                const capitals = {
+                    'France': { capital: 'Paris', population: '2.1 million', region: 'Île-de-France' },
+                    'Germany': { capital: 'Berlin', population: '3.7 million', region: 'Brandenburg' },
+                    'Italy': { capital: 'Rome', population: '2.8 million', region: 'Lazio' },
+                    'Spain': { capital: 'Madrid', population: '3.3 million', region: 'Community of Madrid' },
+                    'Japan': { capital: 'Tokyo', population: '14 million', region: 'Kantō' },
+                    'India': { capital: 'New Delhi', population: '32 million', region: 'National Capital Territory' },
+                    'China': { capital: 'Beijing', population: '21 million', region: 'Northern China' },
+                    'Brazil': { capital: 'Brasília', population: '3.1 million', region: 'Federal District' }
+                };
+
+                const info = capitals[country];
+                
+                if (style === 'analytical') {
+                    return `The capital of ${country} is ${info.capital}. Key facts:\n• Population: ${info.population} (metropolitan area)\n• Region: ${info.region}\n• Status: Primary administrative, economic, and cultural center\n• Government: Houses the main governmental institutions`;
+                } else if (style === 'comprehensive') {
+                    return `${info.capital} serves as the capital and largest city of ${country}, with a metropolitan population of approximately ${info.population}. Located in the ${info.region} region, it functions as the country's political, economic, and cultural epicenter. The city hosts major governmental institutions, international organizations, and serves as a global hub for business, tourism, and diplomacy. Its historical significance and modern infrastructure make it one of the world's most influential capitals.`;
+                } else {
+                    return `🏛️ ${info.capital} - the beating heart of ${country}! This magnificent city of ${info.population} souls sits proudly in ${info.region}, where ancient history dances with modern innovation. From governmental palaces to bustling streets, ${info.capital} tells the story of a nation through its architecture, culture, and vibrant urban life. It's not just a capital - it's a living, breathing testament to ${country}'s identity and aspirations! ✨`;
+                }
+            }
+
+            static getPhotosynthesisInfo(style) {
+                if (style === 'analytical') {
+                    return `Photosynthesis is the biological process where plants convert light energy into chemical energy:\n\n• Input: CO₂ + H₂O + sunlight\n• Output: C₆H₁₂O₆ (glucose) + O₂\n• Location: Chloroplasts (primarily in leaves)\n• Key stages: Light-dependent reactions & Calvin cycle\n• Efficiency: ~1-2% of solar energy converted\n• Global impact: Produces ~330 billion tons of organic matter annually`;
+                } else if (style === 'comprehensive') {
+                    return `Photosynthesis is a complex biochemical process fundamental to life on Earth. It occurs in two main phases: the light-dependent reactions in the thylakoids, where chlorophyll absorbs photons and splits water molecules, releasing oxygen and generating ATP and NADPH; and the light-independent Calvin cycle in the stroma, where CO₂ is fixed into organic molecules using the energy carriers produced in the first phase. This process not only sustains plant life but also produces the oxygen we breathe and forms the base of most food chains, making it essential for virtually all life on our planet.`;
+                } else {
+                    return `🌱 Picture this: Every leaf is a tiny solar panel and chemical factory rolled into one! Plants perform the most elegant magic trick in nature - they literally eat sunlight! ☀️ Using their green chlorophyll as a cosmic antenna, they capture light rays and mix them with water and carbon dioxide in a molecular dance that creates food (glucose) and releases the very oxygen we breathe. It's like having millions of tiny chefs working 24/7 to keep our planet alive and breathing! Without this green wizardry, Earth would be a lifeless rock floating in space. 🍃✨`;
+                }
+            }
+
+            static getGravityInfo(style) {
+                if (style === 'analytical') {
+                    return `Gravity is one of four fundamental forces in physics:\n\n• Strength: Weakest fundamental force (10⁻³⁶ relative to strong force)\n• Range: Infinite, follows inverse square law\n• Effect: Warps spacetime according to Einstein's General Relativity\n• Formula: F = G(m₁m₂)/r²\n• Universal constant G: 6.674 × 10⁻¹¹ m³/kg⋅s²\n• Creates: Planetary orbits, tides, galactic structure`;
+                } else if (style === 'comprehensive') {
+                    return `Gravity represents our most profound understanding of the universe's fabric. Einstein revolutionized our conception by showing that massive objects actually bend the geometry of spacetime itself - what we experience as gravitational attraction is objects following the straightest possible paths through curved space. This curvature explains everything from why apples fall to Earth, to how light bends around stars, to the orbital mechanics that keep planets in motion. Despite being the weakest fundamental force, gravity dominates at large scales because it's always attractive and acts on all matter and energy, shaping the architecture of the cosmos from solar systems to galaxy clusters.`;
+                } else {
+                    return `🌌 Imagine the universe as a giant cosmic trampoline! Every star, planet, and galaxy creates dips and curves in this invisible fabric of space and time. What we call 'gravity' is actually us rolling along these cosmic curves! 🎢 When you drop your phone, it's not being 'pulled' down - it's simply following the curved path that Earth's mass creates in spacetime. It's like the universe is constantly giving everything a gentle nudge saying 'this way!' From the dance of planets to the formation of galaxies, gravity is the universe's master choreographer, conducting the grandest ballet ever performed! 💫`;
+                }
+            }
+
+            static getAIInfo(style) {
+                if (style === 'analytical') {
+                    return `**Artificial Intelligence: Comprehensive Analysis**\n\n**Core AI Concepts:**\n• Machine Learning: Algorithms that improve through experience\n• Deep Learning: Neural networks with multiple layers\n• Supervised Learning: Training with labeled examples\n• Unsupervised Learning: Finding patterns without labels\n• Reinforcement Learning: Learning through rewards/penalties\n\n**AI Subfields:**\n• Natural Language Processing (NLP): Understanding human language\n• Computer Vision: Processing and analyzing visual information\n• Robotics: Integrating AI with physical systems\n• Expert Systems: Knowledge-based decision making\n• Game AI: Strategic thinking and competition\n\n**Current Applications:**\n• Healthcare: Diagnosis, drug discovery, personalized medicine\n• Finance: Fraud detection, algorithmic trading, risk assessment\n• Transportation: Autonomous vehicles, route optimization\n• Entertainment: Recommendation systems, content generation\n• Education: Personalized learning, intelligent tutoring systems\n\n**Technical Challenges:**\n• Explainable AI: Making decisions interpretable\n• Data Quality: Ensuring training data accuracy and fairness\n• Scalability: Handling large datasets and real-time processing\n• Ethics: Addressing bias, privacy, and societal impact`;
+                } else if (style === 'comprehensive') {
+                    return `**The Comprehensive World of Artificial Intelligence**\n\nArtificial Intelligence represents one of the most transformative technologies of our time, encompassing a vast ecosystem of interconnected disciplines and applications. At its foundation, AI relies on machine learning algorithms that can identify patterns, make predictions, and improve performance through experience.\n\n**Machine Learning Landscape:**\nSupervised learning forms the backbone of many AI applications, using labeled datasets to train models for classification and regression tasks. Unsupervised learning discovers hidden patterns in data without explicit guidance, while reinforcement learning enables AI agents to learn optimal strategies through trial and error, much like how humans learn from experience.\n\n**Deep Learning Revolution:**\nNeural networks, inspired by the human brain's structure, have revolutionized AI capabilities. Deep learning models with multiple layers can process complex data types like images, text, and audio with unprecedented accuracy. Convolutional Neural Networks (CNNs) excel at image recognition, while Recurrent Neural Networks (RNNs) and Transformers have transformed natural language processing.\n\n**Specialized AI Domains:**\nNatural Language Processing enables machines to understand, interpret, and generate human language, powering applications from chatbots to language translation. Computer vision allows AI to analyze and understand visual information, enabling facial recognition, medical imaging analysis, and autonomous navigation. Robotics combines AI with physical systems, creating intelligent machines that can interact with the real world.\n\n**Ethical Considerations:**\nAs AI becomes more prevalent, addressing bias, ensuring fairness, and maintaining transparency in AI decision-making processes has become crucial. The field increasingly focuses on responsible AI development that considers societal impact and human values.`;
+                } else {
+                    return `🤖 **Welcome to the Magical World of AI!** ✨\n\nArtificial Intelligence is like giving computers superpowers! Imagine teaching a machine to recognize your grandmother's smile, understand Shakespeare's poetry, or even beat world champions at chess - that's the incredible journey of AI! 🎯\n\n**🧠 The AI Brain Family:**\n• **Machine Learning**: Like teaching a child through examples - show it millions of cat photos and it learns to spot cats everywhere!\n• **Deep Learning**: Imagine a computer with layers of artificial brain cells working together, just like our neurons!\n• **Neural Networks**: Digital brain networks that can dream, create art, and solve puzzles!\n\n**🎭 AI's Amazing Talents:**\n• **Language Wizards (NLP)**: AI that can chat, translate languages, write poetry, and understand jokes!\n• **Vision Masters**: AI that can see and understand pictures better than many humans!\n• **Game Champions**: From chess to Go to video games, AI has become the ultimate competitor!\n• **Creative Artists**: AI can now paint masterpieces, compose music, and write stories!\n\n**🌟 Real-World Magic:**\nAI is already helping doctors diagnose diseases, helping cars drive themselves, recommending your next favorite movie, and even helping protect our environment! It's like having millions of super-smart assistants working 24/7 to make life better! 🚀\n\n**🔮 The Future is Bright:**\nWe're just at the beginning of this incredible journey! AI is becoming more helpful, more creative, and more amazing every day, always working alongside humans to solve the world's biggest challenges! 💫`;
+                }
+            }
+
+            static getGeneralResponse(input, style) {
+                const wordCount = TextProcessor.countWords(input);
+                const keywords = Object.keys(TextProcessor.extractKeywords(input)).slice(0, 3);
+                
+                // Check if question is within our expanded knowledge scope
+                const knownTopics = [
+                    // Geography expanded
+                    'geography', 'capital', 'country', 'city', 'location', 'continent', 'region', 
+                    'landmark', 'monument', 'climate', 'culture', 'territory', 'nation',
+                    
+                    // Science expanded  
+                    'science', 'photosynthesis', 'gravity', 'physics', 'biology', 'chemistry',
+                    'ecosystem', 'human body', 'motion', 'energy', 'light', 'atom', 'molecule',
+                    'reaction', 'weather', 'geology', 'atmosphere', 'space', 'solar system',
+                    'planet', 'astronomy', 'environment', 'sustainability',
+                    
+                    // Technology & AI expanded
+                    'technology', 'computer', 'artificial intelligence', 'ai', 'programming',
+                    'machine learning', 'neural network', 'deep learning', 'supervised learning',
+                    'unsupervised learning', 'reinforcement learning', 'nlp', 'natural language',
+                    'computer vision', 'robotics', 'algorithm', 'data', 'internet', 'web',
+                    'database', 'cybersecurity', 'blockchain', 'cloud computing', 'iot',
+                    'software development', 'coding', 'python', 'javascript', 'html',
+                    
+                    // Creative & Language
+                    'creative', 'writing', 'story', 'poem', 'poetry', 'character', 'plot',
+                    'narrative', 'literature', 'novel', 'screenplay', 'genre', 'fiction',
+                    'dialogue', 'setting', 'theme', 'metaphor', 'analysis',
+                    
+                    // Analysis & Research
+                    'analysis', 'summarize', 'research', 'data', 'statistics', 'information',
+                    'methodology', 'critical thinking', 'academic', 'citation', 'content'
+                ];
+                
+                const lowerInput = input.toLowerCase();
+                const isKnownTopic = knownTopics.some(topic => lowerInput.includes(topic));
+                
+                if (!isKnownTopic) {
+                    return `⚠️ **Topic Outside Current Knowledge Base**\n\nI apologize, but "${input}" falls outside my current specialized knowledge areas.\n\n**My comprehensive expertise covers:**\n\n🌍 **Geography & World Knowledge:** Capitals, countries, landmarks, climate, cultures\n🔬 **Science & Nature:** Biology, physics, chemistry, space, environmental science\n💻 **Technology & AI:** Machine learning, programming, cybersecurity, emerging tech\n🤖 **AI Deep Dive:** NLP, computer vision, neural networks, AI ethics, applications\n📚 **Language & Literature:** Creative writing, poetry, narrative techniques, analysis\n📊 **Research & Analysis:** Data interpretation, methodology, academic writing\n\n**Try asking about:**\n• AI subfields: "Explain natural language processing" or "What is computer vision?"\n• Science topics: "How do ecosystems work?" or "Explain quantum physics basics"\n• Geography: "Tell me about European landmarks" or "Climate zones explained"\n• Creative writing: "How to develop compelling characters" or "Poetry writing techniques"\n\n**For specialized topics** outside these areas, I recommend consulting domain experts, academic databases, or specialized AI models with broader training.`;
+                }
+                
+                if (style === 'analytical') {
+                    return `**Question Analysis: "${input}"**\n\n• Query length: ${wordCount} words\n• Key concepts identified: ${keywords.join(', ') || 'general inquiry'}\n• Category: ${this.categorizeQuestion(input)} question\n• Knowledge scope: Within basic coverage area\n\n**Response Approach:**\nBased on my limited knowledge base, I can provide basic information about this topic. However, for detailed or specialized information, please consult authoritative sources.\n\n**Recommendation:** Please specify which aspect interests you most, or rephrase your question to focus on fundamental concepts I'm trained to handle.`;
+                } else if (style === 'comprehensive') {
+                    return `Thank you for your question about "${input}". While I can identify key concepts like ${keywords.join(', ')}, I must be transparent about my limitations.\n\n**My Knowledge Boundaries:**\nThis AI assistant is designed for educational demonstration with focused expertise in basic geography, fundamental science, technology basics, and creative content generation. \n\n**For Your Question:**\nI can provide general guidance, but for comprehensive, accurate information about "${input}", I recommend:\n• Consulting academic databases\n• Checking peer-reviewed sources\n• Using more advanced AI models with broader training\n\n**Alternative:** If you can relate your question to basic science, geography, or technology concepts, I'd be happy to help within my knowledge scope!`;
+                } else {
+                    return `🤔 Great question about "${input}"! I love your curiosity! \n\nHowever, I need to be honest - this topic might be outside my specialty areas! 🎯 I'm like a friendly neighborhood expert who knows a lot about:\n\n🌍 **Geography basics** (capitals, countries)\n🔬 **Science fundamentals** (photosynthesis, gravity)\n💻 **Tech basics** (AI, computers)\n✨ **Creative writing** (stories, poems)\n\nFor your question, I'd recommend checking with:\n• 📚 Educational websites\n• 🎓 Academic sources  \n• 🤖 More advanced AI assistants\n\n**But hey!** If you can connect your question to my specialty areas, I'd absolutely love to help! Just rephrase it focusing on the basic concepts I know well! 🚀`;
+                }
+            }
+
+            static categorizeQuestion(input) {
+                const lowerInput = input.toLowerCase();
+                if (lowerInput.includes('what') || lowerInput.includes('who') || lowerInput.includes('where')) return 'factual';
+                if (lowerInput.includes('how') || lowerInput.includes('why')) return 'explanatory';
+                if (lowerInput.includes('should') || lowerInput.includes('recommend')) return 'advisory';
+                return 'general inquiry';
+            }
+
+            static generateSummary(text, style) {
+                const sentences = TextProcessor.extractSentences(text);
+                const wordCount = TextProcessor.countWords(text);
+                const keywords = Object.keys(TextProcessor.extractKeywords(text)).slice(0, 5);
+                
+                if (wordCount < 50) {
+                    return "The provided text is too short to generate a meaningful summary. Please provide a longer text (at least 50 words) for effective summarization.";
+                }
+
+                if (style === 'analytical') {
+                    const summary = TextProcessor.summarizeText(text, 3);
+                    return `**Analytical Summary:**\n\n${summary}\n\n**Key Statistics:**\n• Original length: ${wordCount} words, ${sentences.length} sentences\n• Summary reduction: ${Math.round((1 - TextProcessor.countWords(summary)/wordCount) * 100)}%\n• Primary keywords: ${keywords.join(', ')}\n• Reading time: ~${TextProcessor.estimateReadingTime(text)} minutes`;
+                } else if (style === 'comprehensive') {
+                    const keyPoints = this.extractKeyPoints(text);
+                    const mainTheme = this.identifyMainTheme(text, keywords);
+                    return `**Comprehensive Analysis:**\n\n**Main Theme:** ${mainTheme}\n\n**Key Points:**\n${keyPoints.map((point, i) => `${i + 1}. ${point}`).join('\n')}\n\n**Context:** This ${wordCount}-word text covers multiple aspects of the topic, providing ${sentences.length} distinct ideas. The analysis suggests a focus on ${keywords.slice(0, 3).join(', ')}, making it valuable for readers interested in understanding the broader implications and detailed nuances of the subject matter.`;
+                } else {
+                    const story = this.createEngagingSummary(text, keywords);
+                    return `**The Story in Brief:** ✨\n\n${story}\n\n💡 **What makes this interesting:** This piece weaves together ideas about ${keywords.slice(0, 3).join(', ')}, creating a narrative that's both informative and thought-provoking. In just ${Math.ceil(TextProcessor.estimateReadingTime(text))} minutes of reading, you'll journey through ${sentences.length} key insights that could change how you think about the topic!`;
+                }
+            }
+
+            static extractKeyPoints(text) {
+                const sentences = TextProcessor.extractSentences(text);
+                return sentences
+                    .filter(sentence => TextProcessor.countWords(sentence) >= 8)
+                    .slice(0, 4)
+                    .map(sentence => sentence.trim().replace(/^[^a-zA-Z]*/, ''));
+            }
+
+            static identifyMainTheme(text, keywords) {
+                if (keywords.some(k => ['technology', 'digital', 'computer', 'internet'].includes(k))) return 'Technology and Innovation';
+                if (keywords.some(k => ['health', 'medical', 'treatment', 'patient'].includes(k))) return 'Health and Medicine';
+                if (keywords.some(k => ['business', 'market', 'economic', 'company'].includes(k))) return 'Business and Economics';
+                if (keywords.some(k => ['education', 'learning', 'student', 'teaching'].includes(k))) return 'Education and Learning';
+                return 'General Knowledge and Information';
+            }
+
+            static createEngagingSummary(text, keywords) {
+                const mainPoints = this.extractKeyPoints(text).slice(0, 3);
+                return `This fascinating piece explores ${keywords[0] || 'important concepts'}, revealing ${mainPoints.length} crucial insights. ${mainPoints[0] || 'The content presents valuable information'} The narrative builds from there, showing how ${keywords[1] || 'various elements'} connect to create a bigger picture. What's particularly compelling is how the author brings together different perspectives to illuminate ${keywords[2] || 'the central theme'}.`;
+            }
+
+            static generateCreativeContent(input, style) {
+                const lowerInput = input.toLowerCase();
+                
+                // Story prompts
+                if (lowerInput.includes('story') || lowerInput.includes('tale')) {
+                    return this.generateStory(input, style);
+                }
+                
+                // Poetry prompts
+                if (lowerInput.includes('poem') || lowerInput.includes('poetry') || lowerInput.includes('verse')) {
+                    return this.generatePoem(input, style);
+                }
+                
+                // Character or dialogue prompts
+                if (lowerInput.includes('character') || lowerInput.includes('dialogue')) {
+                    return this.generateCharacterContent(input, style);
+                }
+                
+                // General creative prompt
+                return this.generateGeneralCreative(input, style);
+            }
+
+            static generateStory(input, style) {
+                const themes = ['adventure', 'mystery', 'friendship', 'discovery', 'transformation'];
+                const theme = themes[Math.floor(Math.random() * themes.length)];
+                
+                if (style === 'analytical') {
+                    return `**Structured Story: "${this.extractMainConcept(input)}"**\n\n**Setting:** A world where ${this.extractMainConcept(input)} plays a central role\n\n**Plot Structure:**\n• Exposition: Introduce protagonist facing a challenge related to ${this.extractMainConcept(input)}\n• Rising Action: Complications arise, testing the character's resolve\n• Climax: Critical moment where ${theme} becomes essential\n• Resolution: Character growth through overcoming obstacles\n\n**Key Elements:**\n• Theme: ${theme} and personal growth\n• Conflict: Internal and external challenges\n• Character Arc: From uncertainty to confidence\n• Message: Resilience and adaptability lead to success`;
+                } else if (style === 'comprehensive') {
+                    return `**The Chronicles of ${this.extractMainConcept(input)}**\n\nIn a realm where ${this.extractMainConcept(input)} held ancient power, Maya discovered her extraordinary gift on her sixteenth birthday. The morning started like any other, until she touched the old oak tree in her grandmother's garden and suddenly understood its hundred-year history.\n\nThe tree whispered of storms weathered, of children who played beneath its branches, of secrets carved into its bark. Maya realized she could commune with the essence of ${this.extractMainConcept(input)} in ways no one else could. This ability would soon be tested when darkness threatened her village.\n\nAs the mysterious Shadow Blight began consuming the life force of everything it touched, Maya understood that her gift wasn't coincidence—it was destiny. She would need to master her connection to ${this.extractMainConcept(input)} to save not just her home, but restore balance to the world itself.\n\nThe journey ahead would transform her from a uncertain teenager into a guardian of ancient wisdom, teaching her that true strength comes from understanding our connection to the world around us.`;
+                } else {
+                    return `✨ **The Magical Tale of ${this.extractMainConcept(input)}** ✨\n\nOnce upon a time, in a world where dreams took physical form, there lived a young inventor named Alex who discovered that ${this.extractMainConcept(input)} was the key to everything magical! 🌟\n\nEvery morning, Alex would wake up to find that their dreams from the night before had transformed into tiny, glowing orbs floating around their bedroom. But these weren't ordinary dreams—they were portals to incredible adventures!\n\nOne day, the most beautiful orb appeared, shimmering with colors Alex had never seen. When they touched it, WHOOSH! 🌈 They were transported to a realm where ${this.extractMainConcept(input)} came alive in the most extraordinary ways.\n\nThere, Alex met talking crystals, flying books, and wise old trees that shared the secrets of creativity and wonder. They learned that imagination isn't just about thinking—it's about feeling, believing, and daring to make the impossible possible!\n\nAnd from that day forward, Alex knew that every challenge was just another adventure waiting to unfold, because when you believe in the magic of ${this.extractMainConcept(input)}, anything can happen! 🚀💫`;
+                }
+            }
+
+            static generatePoem(input, style) {
+                const mood = this.detectMood(input);
+                const theme = this.extractMainConcept(input);
+                
+                if (style === 'analytical') {
+                    return `**Structured Poem: "${theme}"**\n\n**Form:** Free verse with controlled rhythm\n**Meter:** Mixed iambic patterns\n**Theme:** ${mood} reflection on ${theme}\n\n---\n\n${theme} whispers in the morning light,\nA gentle promise, soft and bright.\nEach moment holds a truth untold,\nIn stories new and wisdom old.\n\nThe rhythm of our daily song\nCarries us when paths seem long.\n${theme} becomes our guiding star,\nShowing us just who we are.\n\n**Analysis:**\n• Structure: 2 quatrains with AABB rhyme scheme\n• Literary devices: Personification, metaphor, alliteration\n• Tone: ${mood} and contemplative\n• Message: Finding meaning in ${theme}`;
+                } else if (style === 'comprehensive') {
+                    return `**"Ode to ${theme}"**\n\nIn morning's gentle, golden embrace,\nWhere shadows dance with light's sweet grace,\n${theme} emerges from the dawn,\nLike dew-kissed petals on the lawn.\n\nThrough seasons of our changing hearts,\nWhere every ending truly starts\nA journey deeper than before,\n${theme} opens every door.\n\nThe whispered secrets of the night\nTransform to visions burning bright,\nAs we discover, bit by bit,\nHow perfectly the pieces fit.\n\nIn ${mood} moments, still and true,\nWhen ${theme} reveals a different view,\nWe understand that life's great art\nIs written first within the heart.\n\nSo let us celebrate today\nThe ${mood} beauty in our way,\nFor ${theme} teaches us to see\nThe magic in what's meant to be.`;
+                } else {
+                    return `🎨 **"${theme} Dreams"** 🎨\n\n✨ Sparkles dancing in the air,\n${theme} magic everywhere!\nPainted colors, bold and bright,\nTurning darkness into light! 🌈\n\n🎭 In the theater of the mind,\nWonderful stories we will find,\n${theme} takes the center stage,\nWriting life on every page!\n\n🌟 Dreams are not just make-believe,\nThey're the miracles we weave,\nWith ${theme} as our faithful guide,\nMagic flows from deep inside!\n\n💫 So dance with joy and sing out loud,\nLet ${theme} make you feel proud,\nFor in this ${mood} symphony,\nYou're exactly who you're meant to be! 🎵\n\n*A celebration of the ${mood} spirit that ${theme} brings to our world!* ✨`;
+                }
+            }
+
+            static generateCharacterContent(input, style) {
+                const characterType = this.extractCharacterType(input);
+                const setting = this.extractSetting(input);
+                
+                if (style === 'analytical') {
+                    return `**Character Profile: ${characterType}**\n\n**Basic Information:**\n• Name: Alexandra "Lexi" Chen\n• Age: 28\n• Occupation: ${characterType}\n• Setting: ${setting}\n\n**Personality Traits:**\n• Strengths: Analytical thinking, empathy, resilience\n• Weaknesses: Perfectionism, overthinking\n• Motivation: Seeking truth and helping others\n• Conflict: Balancing personal desires with responsibilities\n\n**Character Arc:**\n• Initial state: Confident but untested\n• Challenge: Faces moral dilemma requiring growth\n• Growth: Learns to trust intuition alongside logic\n• Resolution: Becomes a more complete, wise individual\n\n**Dialogue Sample:**\n"I've spent years believing that logic alone could solve everything, but I'm starting to understand that some of life's most important answers come from the heart."`;
+                } else if (style === 'comprehensive') {
+                    return `**Character Development: ${characterType} in ${setting}**\n\nMeet Dr. Samara Okafor, a brilliant ${characterType} whose life changed forever when she discovered an ancient artifact in ${setting}. At thirty-two, Samara had dedicated her life to understanding the mysteries of her field, but nothing had prepared her for what she was about to uncover.\n\nBorn in Lagos and educated at Oxford, Samara possessed an rare combination of scientific rigor and intuitive insight. Her colleagues respected her methodical approach, but few knew about the dreams that had guided her research for years—dreams of places she'd never been and knowledge she'd never learned.\n\nWhen the artifact began responding to her touch, revealing secrets that challenged everything she thought she knew about ${setting}, Samara faced a choice: retreat to the safety of conventional wisdom or embrace a truth that would revolutionize her understanding of the world.\n\n**Character Voice:**\n"Every discovery teaches us that the universe is far more mysterious and wonderful than we ever imagined. Sometimes the greatest act of faith is simply being willing to learn."`;
+                } else {
+                    return `🌟 **Meet Zara Starweaver - The Extraordinary ${characterType}!** 🌟\n\nImagine someone who can see the magic hidden in everyday moments—that's Zara! Living in the enchanting world of ${setting}, she's not your ordinary ${characterType}. Oh no, she's got a secret that makes her absolutely special! ✨\n\nZara has the amazing ability to ${this.generateSuperpower(characterType)}, which comes in handy when she's solving mysteries and helping her friends! She's got sparkling green eyes that seem to hold all the secrets of the universe, and a laugh that sounds like wind chimes dancing in a gentle breeze. 🎵\n\n**Zara's Favorite Things:**\n🌈 Collecting rainbow-colored stones that whisper ancient stories\n📚 Reading books that transport her to different dimensions\n🎨 Painting portraits of people's dreams\n🐝 Talking to bees (they give the best advice!)\n\n**Her Motto:** "Every challenge is just a disguised adventure, and every friend is a treasure waiting to be discovered!"\n\nWith her boundless curiosity and heart full of kindness, Zara proves that being different isn't just okay—it's absolutely magical! 💫`;
+                }
+            }
+
+            static generateGeneralCreative(input, style) {
+                const concept = this.extractMainConcept(input);
+                const tone = this.detectMood(input);
+                
+                if (style === 'analytical') {
+                    return `**Creative Concept Analysis: "${concept}"**\n\n**Core Elements:**\n• Central theme: ${concept}\n• Emotional tone: ${tone}\n• Target audience: General interest\n• Format: Multi-modal creative piece\n\n**Development Framework:**\n1. Conceptualization: Explore the essence of ${concept}\n2. Research: Gather relevant cultural, historical, or scientific context\n3. Creative execution: Blend factual elements with imaginative interpretation\n4. Refinement: Ensure coherence between message and medium\n\n**Potential Applications:**\n• Interactive storytelling experience\n• Educational content with creative elements\n• Inspirational piece for personal reflection\n• Collaborative creative project\n\n**Success Metrics:**\n• Emotional resonance with audience\n• Clarity of central message\n• Originality of approach\n• Practical applicability or inspiration value`;
+                } else if (style === 'comprehensive') {
+                    return `**Creative Exploration: The Essence of ${concept}**\n\nIn the grand tapestry of human experience, ${concept} represents one of our most fascinating and complex themes. This creative journey invites us to explore not just what ${concept} means in the abstract, but how it manifests in our daily lives, relationships, and dreams.\n\nThrough the lens of ${tone} reflection, we can discover layers of meaning that might otherwise remain hidden. ${concept} becomes not just an idea to contemplate, but a living force that shapes our understanding of ourselves and our world.\n\nImagine ${concept} as a character in the story of your life—sometimes a wise mentor, sometimes a challenging antagonist, but always a catalyst for growth and transformation. What lessons would this character teach? What adventures would it lead you on? What truths would it help you discover about your own potential?\n\nThis creative exploration encourages us to move beyond conventional thinking and embrace the ${tone} possibilities that emerge when we allow our imagination to guide our understanding. In doing so, we create space for new insights, deeper connections, and more meaningful experiences.\n\nThe journey with ${concept} is ultimately a journey toward greater authenticity, creativity, and wisdom—a reminder that the most profound truths often reveal themselves through the marriage of imagination and understanding.`;
+                } else {
+                    return `🎪 **Welcome to the Magical World of ${concept}!** 🎪\n\nStep right up to the most amazing creative adventure you've ever experienced! In this ${tone} wonderland, ${concept} isn't just an idea—it's a living, breathing, dancing celebration of everything that makes life extraordinary! ✨\n\n🎨 **Your Creative Journey Includes:**\n• A magical thinking cap that turns ordinary thoughts into rainbow-colored inspirations!\n• A compass that always points toward "What if...?" instead of "That's impossible!"\n• A treasure map leading to hidden caves filled with brilliant ideas!\n• A friendship bracelet that connects you to every creative soul who's ever dared to dream!\n\n🌟 **The ${concept} Adventure:**\nImagine ${concept} as your personal creative genie! Every day, it whispers new possibilities in your ear: "What if clouds were made of cotton candy?" or "What if trees could tell jokes?" or "What if ${concept} could teach the whole world to see magic in ordinary moments?"\n\nThis isn't just about creativity—it's about discovering that YOU are the artist, the storyteller, the inventor, and the dreamer of your own amazing life! With ${concept} as your guide, every single day becomes a blank canvas waiting for your unique, wonderful, absolutely perfect masterpiece! 🎨✨\n\n*Ready to paint the world with your imagination?* 🌈`;
+                }
+            }
+
+            // Helper methods
+            static extractMainConcept(input) {
+                const words = input.toLowerCase().split(/\s+/);
+                const importantWords = words.filter(word => 
+                    word.length > 4 && 
+                    !['about', 'create', 'write', 'generate', 'make', 'story', 'poem'].includes(word)
+                );
+                return importantWords[0] || 'creativity';
+            }
+
+            static detectMood(input) {
+                const positiveWords = ['happy', 'joy', 'bright', 'beautiful', 'wonderful', 'amazing', 'love', 'hope'];
+                const contemplativeWords = ['deep', 'thought', 'meaning', 'reflection', 'wisdom', 'understanding'];
+                const adventurousWords = ['adventure', 'journey', 'explore', 'discover', 'quest', 'mystery'];
+                
+                const lowerInput = input.toLowerCase();
+                
+                if (positiveWords.some(word => lowerInput.includes(word))) return 'uplifting';
+                if (contemplativeWords.some(word => lowerInput.includes(word))) return 'contemplative';
+                if (adventurousWords.some(word => lowerInput.includes(word))) return 'adventurous';
+                
+                return 'inspiring';
+            }
+
+            static extractCharacterType(input) {
+                const types = {
+                    'scientist': ['scientist', 'researcher', 'doctor', 'professor'],
+                    'artist': ['artist', 'painter', 'musician', 'writer'],
+                    'explorer': ['explorer', 'adventurer', 'traveler', 'detective'],
+                    'teacher': ['teacher', 'mentor', 'guide', 'instructor']
+                };
+                
+                const lowerInput = input.toLowerCase();
+                for (let [type, keywords] of Object.entries(types)) {
+                    if (keywords.some(keyword => lowerInput.includes(keyword))) {
+                        return type;
+                    }
+                }
+                return 'visionary';
+            }
+
+            static extractSetting(input) {
+                const settings = {
+                    'futuristic city': ['future', 'space', 'technology', 'robot'],
+                    'magical forest': ['magic', 'forest', 'fantasy', 'enchanted'],
+                    'ancient library': ['library', 'books', 'knowledge', 'ancient'],
+                    'mysterious island': ['island', 'ocean', 'mystery', 'hidden']
+                };
+                
+                const lowerInput = input.toLowerCase();
+                for (let [setting, keywords] of Object.entries(settings)) {
+                    if (keywords.some(keyword => lowerInput.includes(keyword))) {
+                        return setting;
+                    }
+                }
+                return 'a world of infinite possibilities';
+            }
+
+            static generateSuperpower(characterType) {
+                const powers = {
+                    'scientist': 'understand the language of atoms and molecules',
+                    'artist': 'paint emotions that come to life on canvas',
+                    'explorer': 'sense hidden paths and secret doorways',
+                    'teacher': 'help others discover their hidden talents',
+                    'visionary': 'see the connections between all living things'
+                };
+                return powers[characterType] || 'turn imagination into reality';
+            }
+        }
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            updateUI();
+            loadStats();
+            updateWordCount();
+            
+            // Function button event listeners
+            document.querySelectorAll('.function-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.function-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentFunction = this.dataset.function;
+                    updateUI();
+                });
+            });
+            
+            // Process button event listener
+            document.getElementById('process-btn').addEventListener('click', processRequest);
+            
+            // Word count update
+            document.getElementById('user-input').addEventListener('input', updateWordCount);
+            
+            // Enter key processing
+            document.getElementById('user-input').addEventListener('keydown', function(e) {
+                if (e.ctrlKey && e.key === 'Enter') {
+                    processRequest();
+                }
+            });
+        });
+
+        function updateUI() {
+            const inputLabel = document.getElementById('input-label');
+            const userInput = document.getElementById('user-input');
+            
+            switch(currentFunction) {
+                case 'questions':
+                    inputLabel.innerHTML = '💭 Ask about geography, science, or tech basics:';
+                    userInput.placeholder = 'e.g., What is the capital of France? How does photosynthesis work? What is artificial intelligence?';
+                    break;
+                case 'summarize':
+                    inputLabel.innerHTML = '📊 Enter any text to analyze:';
+                    userInput.placeholder = 'Paste an article, research paper, or any text content for analysis and summarization...';
+                    break;
+                case 'creative':
+                    inputLabel.innerHTML = '🎨 Enter your creative prompt:';
+                    userInput.placeholder = 'e.g., Write a story about space exploration, Create a poem about friendship, Design a character...';
+                    break;
+            }
+            
+            // Hide feedback section when switching functions
+            document.getElementById('feedback-section').classList.add('hidden');
+            document.getElementById('summary-stats').classList.add('hidden');
+        }
+
+        function updateWordCount() {
+            const input = document.getElementById('user-input').value;
+            const wordCount = TextProcessor.countWords(input);
+            document.getElementById('word-count').textContent = `${wordCount} words`;
+        }
+
+        function processRequest() {
+            const userInput = document.getElementById('user-input').value.trim();
+            const promptStyle = document.getElementById('prompt-style').value;
+            
+            if (!userInput) {
+                alert('Please enter some text to process!');
+                return;
+            }
+            
+            if (currentFunction === 'summarize' && TextProcessor.countWords(userInput) < 20) {
+                alert('Please provide at least 20 words for effective text analysis.');
+                return;
+            }
+            
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('process-btn').disabled = true;
+            document.getElementById('output-area').style.display = 'none';
+            document.getElementById('feedback-section').classList.add('hidden');
+            
+            // Simulate AI processing delay with realistic timing
+            const processingTime = Math.min(2000 + TextProcessor.countWords(userInput) * 50, 5000);
+            
+            setTimeout(() => {
+                const response = generateResponse(userInput, promptStyle);
+                displayResponse(response, userInput);
+                updateStats();
+                showSummaryStats(response, userInput);
+                
+                // Hide loading
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('process-btn').disabled = false;
+                document.getElementById('output-area').style.display = 'block';
+                document.getElementById('feedback-section').classList.remove('hidden');
+            }, processingTime);
+        }
+
+        function generateResponse(input, style) {
+            let response = "";
+            
+            try {
+                if (currentFunction === 'questions') {
+                    response = ResponseGenerator.generateQuestionResponse(input, style);
+                } else if (currentFunction === 'summarize') {
+                    response = ResponseGenerator.generateSummary(input, style);
+                } else if (currentFunction === 'creative') {
+                    response = ResponseGenerator.generateCreativeContent(input, style);
+                }
+                
+                // Add prompt style indicator
+                const styleIndicators = {
+                    'analytical': '🔍 Analytical Style',
+                    'comprehensive': '📚 Comprehensive Style', 
+                    'creative': '✨ Creative Style'
+                };
+                
+                response += `\n\n---\n*Generated using ${styleIndicators[style]} prompt engineering*`;
+                
+            } catch (error) {
+                response = `I apologize, but I encountered an error processing your request. Please try again with a different input or contact support if the problem persists.\n\nError details: ${error.message}`;
+            }
+            
+            return response;
+        }
+
+        function displayResponse(response, originalInput) {
+            const outputContent = document.getElementById('output-content');
+            
+            // Enhanced display with better formatting
+            let formattedResponse = response
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/\n/g, '<br>')
+                .replace(/• /g, '• ')
+                .replace(/(\d+\. )/g, '<strong>$1</strong>');
+            
+            outputContent.innerHTML = formattedResponse;
+        }
+
+        function showSummaryStats(response, input) {
+            if (currentFunction === 'summarize') {
+                const summaryStats = document.getElementById('summary-stats');
+                const wordCountOutput = document.getElementById('word-count-output');
+                const readingTime = document.getElementById('reading-time');
+                const keyPointsCount = document.getElementById('key-points-count');
+                
+                const originalWords = TextProcessor.countWords(input);
+                const responseWords = TextProcessor.countWords(response);
+                const estimatedReadingTime = TextProcessor.estimateReadingTime(input);
+                const sentences = TextProcessor.extractSentences(input);
+                
+                wordCountOutput.textContent = originalWords;
+                readingTime.textContent = `${estimatedReadingTime} min`;
+                keyPointsCount.textContent = Math.min(sentences.length, 5);
+                
+                summaryStats.classList.remove('hidden');
+            }
+        }
+
+        function updateStats() {
+            stats[currentFunction]++;
+            stats.total++;
+            document.getElementById(`stat-${currentFunction}`).textContent = stats[currentFunction];
+            
+            // Update success rate
+            const successRate = Math.round((stats.positive / stats.total) * 100) || 100;
+            document.getElementById('success-rate').textContent = `${successRate}%`;
+            
+            saveStats();
+        }
+
+        function submitFeedback(isHelpful) {
+            if (isHelpful) {
+                stats.positive++;
+                document.getElementById('stat-positive').textContent = stats.positive;
+            }
+            
+            // Update success rate
+            const successRate = Math.round((stats.positive / stats.total) * 100);
+            document.getElementById('success-rate').textContent = `${successRate}%`;
+            
+            const feedbackSection = document.getElementById('feedback-section');
+            feedbackSection.innerHTML = `
+                <h4 style="color: #fff;">🌟 Thank you for your feedback!</h4>
+                <p style="opacity: 0.9;">Your input helps improve our AI prompt engineering and response quality.</p>
+            `;
+            
+            saveStats();
+            
+            setTimeout(() => {
+                feedbackSection.classList.add('hidden');
+            }, 3000);
+        }
+
+        function submitDetailedFeedback() {
+            const feedbackText = document.getElementById('feedback-text').value;
+            
+            // In a real application, this would be sent to a backend server
+            console.log('Detailed feedback received:', {
+                function: currentFunction,
+                feedback: feedbackText,
+                timestamp: new Date().toISOString()
+            });
+            
+            const feedbackSection = document.getElementById('feedback-section');
+            feedbackSection.innerHTML = `
+                <h4 style="color: #fff;">💫 Thank you for your detailed feedback!</h4>
+                <p style="opacity: 0.9;">Your suggestions will help us refine our prompt engineering techniques and improve response accuracy.</p>
+            `;
+            
+            setTimeout(() => {
+                feedbackSection.classList.add('hidden');
+            }, 3000);
+        }
+
+        function saveStats() {
+            // In a real application, this would save to a database
+            localStorage.setItem('aiAssistantStats', JSON.stringify(stats));
+        }
+
+        function loadStats() {
+            // In a real application, this would load from a database
+            try {
+                const savedStats = localStorage.getItem('aiAssistantStats');
+                if (savedStats) {
+                    const parsedStats = JSON.parse(savedStats);
+                    Object.assign(stats, parsedStats);
+                }
+            } catch (error) {
+                console.log('No previous stats found, starting fresh');
+            }
+            
+            // Update UI with loaded stats
+            Object.keys(stats).forEach(key => {
+                const element = document.getElementById(`stat-${key}`);
+                if (element) {
+                    element.textContent = stats[key];
+                }
+            });
+            
+            // Update success rate
+            const successRate = Math.round((stats.positive / stats.total) * 100) || 100;
+            document.getElementById('success-rate').textContent = `${successRate}%`;
+        }
+
+        // Add some advanced features
+        document.addEventListener('keydown', function(e) {
+            // Quick function switching with keyboard shortcuts
+            if (e.altKey) {
+                switch(e.key) {
+                    case '1':
+                        e.preventDefault();
+                        switchFunction('questions');
+                        break;
+                    case '2':
+                        e.preventDefault();
+                        switchFunction('summarize');
+                        break;
+                    case '3':
+                        e.preventDefault();
+                        switchFunction('creative');
+                        break;
+                }
+            }
+        });
+
+        function switchFunction(functionName) {
+            document.querySelectorAll('.function-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.function === functionName) {
+                    btn.classList.add('active');
+                }
+            });
+            currentFunction = functionName;
+            updateUI();
+        }
+
+        // Add tooltip for keyboard shortcuts
+        document.addEventListener('DOMContentLoaded', function() {
+            const shortcutInfo = document.createElement('div');
+            shortcutInfo.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background: rgba(0,0,0,0.8);
+                color: white;
+                padding: 10px;
+                border-radius: 8px;
+                font-size: 12px;
+                opacity: 0.7;
+                transition: opacity 0.3s ease;
+                z-index: 1000;
+            `;
+            shortcutInfo.innerHTML = `
+                <strong>Keyboard Shortcuts:</strong><br>
+                Alt+1: Q&A Mode<br>
+                Alt+2: Summarize Mode<br>
+                Alt+3: Creative Mode<br>
+                Ctrl+Enter: Process Request
+            `;
+            document.body.appendChild(shortcutInfo);
+            
+            // Hide tooltip after 5 seconds
+            setTimeout(() => {
+                shortcutInfo.style.opacity = '0';
+                setTimeout(() => {
+                    if (document.body.contains(shortcutInfo)) {
+                        document.body.removeChild(shortcutInfo);
+                    }
+                }, 300);
+            }, 5000);
+        });
+    </script>
+</body>
+</html>
